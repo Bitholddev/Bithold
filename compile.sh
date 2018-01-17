@@ -8,5 +8,5 @@ chmod 755 src/secp256k1/autogen.sh
 cd src/leveldb
 make libleveldb.a libmemenv.a
 cd ..
-make -f makefile.unix -j4
+make -f makefile.unix -j$(npoc)
 strip bitholdd
