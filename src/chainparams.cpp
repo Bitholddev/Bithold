@@ -67,7 +67,7 @@ public:
         nRPCPort = 15973;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 16); // starting difficulty is 1 / 2^12
 		
-        const char* pszTimestamp = "Democrats Add Momentum to G.O.P. Push to Loosen Banking Rules";
+        const char* pszTimestamp = "Timothee Chalamet Promises Salary From Woody Allen Film to Charity";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
@@ -75,7 +75,7 @@ public:
         vout.resize(1);
         vout[0].SetEmpty();
 		
-        CTransaction txNew(1, 1516114800, vin, vout, 0);
+        CTransaction txNew(1, 1516154401, vin, vout, 0);
 
         LogPrintf("genesis mainnet transaction:  %s\n", txNew.ToString().c_str());
 
@@ -84,14 +84,14 @@ public:
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1516114800;
+        genesis.nTime    = 1516154401; // Wednesday, 17-Jan-18 02:00:01 UTC
         genesis.nBits    = bnProofOfWorkLimit.GetCompact(); 
-        genesis.nNonce   = 44763;	
-		
+        genesis.nNonce   = 15035;
+	
         hashGenesisBlock = genesis.GetHash();
 
-        assert(hashGenesisBlock == uint256("0x0000bead56a710eb25099c06024aeaaa9403cf7a61cfe1346c947b2247d5ec06"));
-        assert(genesis.hashMerkleRoot == uint256("0x7d9175cff30a1a6b0513319aa192650ed2634087b41ba5808516b8df3fa6bdd1"));
+        assert(hashGenesisBlock == uint256("0x0000f6839892d0884df2ade5a5aebddbb9bcb289e9b07a232b8b6b36b91521ef"));
+        assert(genesis.hashMerkleRoot == uint256("0x5e0682f985f824c1379d11c572bf657afe85c0eb20305e5cc14e9bcc6a14aed2"));
 
         
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,100); // h
@@ -148,12 +148,12 @@ public:
         nDefaultPort = 27170;
         nRPCPort = 27171;
         strDataDir = "testnet";
-        genesis.nTime    = 1516114801;
+        genesis.nTime    = 1516154411;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact(); 
-        genesis.nNonce   = 77905;
+        genesis.nNonce   = 38881;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x0000e1759feb579d2fc375beafbec712214cf44761431d1460b5e54233e2c56a"));
+        assert(hashGenesisBlock == uint256("0x0000ff2b37540864619169d162127548e496c393ccbd535fa4077ddf587b75bb"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
