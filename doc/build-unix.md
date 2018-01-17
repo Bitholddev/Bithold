@@ -163,7 +163,7 @@ To Build Bitholdd with compile script
 The script will take care of setting the permissions and compiling static leveldb:
 
 	cd Bithold
-    chmod +x compile.sh
+    chmod +x compile-qt.sh
     ./compile-qt.sh
 	
 	
