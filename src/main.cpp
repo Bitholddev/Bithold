@@ -2362,7 +2362,7 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
 {
     CBigNum bnCentSecond = 0;  // coin age in the unit of cent-seconds
     nCoinAge = 0;
-    int nStakeMinConfirmations = 360;
+    int nStakeMinConfirmations = 720;
 
     if (IsCoinBase())
         return true;
@@ -4563,7 +4563,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 
     if (nHeight < 1000) {
 	ret = 0;
-    } else if (nHeight > 500 && nHeight <= 10000) {
+    } else if (nHeight >= 1000 && nHeight <= 10000) {
         ret = blockValue / 4; // MN Reward 25%
     } else if (nHeight > 10000 && nHeight <= 30000) {
 		ret = blockValue / 2; // MN Reward 50%

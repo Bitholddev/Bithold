@@ -44,7 +44,7 @@ Welcome to the future!
 
 ### Masternode Rewards:
 
-*	block 500 - 10 000 : 	25% of the POW rewards
+*	block 1 000 - 10 000 : 	25% of the POW rewards
 *	block 10 001 - 30 000 : 50% of the POW rewards
 *	block 30 000 + : 		75% of the POW rewards
 
