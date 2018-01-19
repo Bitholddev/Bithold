@@ -8,4 +8,4 @@ cd src/leveldb
 make libleveldb.a libmemenv.a
 cd ../..
 qmake -qt=qt5
-make -j$(npoc)
+make
