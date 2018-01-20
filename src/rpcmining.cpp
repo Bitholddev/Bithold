@@ -11,9 +11,7 @@
 #include "init.h"
 #include "miner.h"
 #include "kernel.h"
-#include "base58.h"
-#include "masternodeman.h"
-#include "masternode-payments.h"
+
 
 
 #include <boost/assign/list_of.hpp>
@@ -69,7 +67,7 @@ Value getstakesubsidy(const Array& params, bool fHelp)
         ssData >> tx;
     }
     catch (std::exception &e) {
-        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "BHD decode failed");
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
     }
 
     uint64_t nCoinAge;
@@ -131,11 +129,7 @@ Value getstakinginfo(const Array& params, bool fHelp)
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = nLastCoinStakeSearchInterval && nWeight;
-    if(!NO_FORK && pindexBest->nHeight <= HARD_FORK_BLOCK){
-        nExpectedTime = staking ? (TARGET_SPACING_FORK * nNetworkWeight / nWeight) : 0;
-    } else {
-        nExpectedTime = staking ? (TARGET_SPACING * nNetworkWeight / nWeight) : 0;
-    }
+    nExpectedTime = staking ? (TARGET_SPACING_FORK * nNetworkWeight / nWeight) : 0;
 
     Object obj;
 
@@ -370,80 +364,6 @@ Value getworkex(const Array& params, bool fHelp)
     }
 }
 
-Value mine(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() != 1)
-        throw runtime_error("mine <count> - mine next 'count' block(s), 0=infinite.\n");
-
-    if (vNodes.empty())
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Bithold is not connected!");
-
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Bithold is downloading blocks...");
-
-    while(true){
-        typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
-        static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
-        static vector<CBlock*> vNewBlock;
-
-        // Update block
-        static unsigned int nTransactionsUpdatedLast;
-        static CBlockIndex* pindexPrev;
-        static int64_t nStart;
-        static CBlock* pblock;
-        if (pindexPrev != pindexBest ||
-            (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60))
-        {
-            if (pindexPrev != pindexBest)
-            {
-                // Deallocate old blocks since they're obsolete now
-                mapNewBlock.clear();
-                BOOST_FOREACH(CBlock* pblock, vNewBlock)
-                    delete pblock;
-                vNewBlock.clear();
-            }
-
-            // Clear pindexPrev so future getworks make a new block, despite any failures from here on
-            pindexPrev = NULL;
-
-            // Store the pindexBest used before CreateNewBlock, to avoid races
-            nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
-            CBlockIndex* pindexPrevNew = pindexBest;
-            nStart = GetTime();
-
-            // Create new block
-            pblock = CreateNewBlock(*pMiningKey);
-            if (!pblock)
-                throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
-            vNewBlock.push_back(pblock);
-
-            // Need to update only after we know CreateNewBlock succeeded
-            pindexPrev = pindexPrevNew;
-        }
-
-        // Update nTime
-        pblock->UpdateTime(pindexPrev);
-        pblock->nNonce = 0;
-
-        // Update nExtraNonce
-        static unsigned int nExtraNonce = 0;
-        IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
-
-        // pblock->vtx[0].vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
-        pblock->hashMerkleRoot = pblock->BuildMerkleTree();
-
-        assert(pwalletMain != NULL);
-        if(params[0].get_str() != "0"){
-            return CheckWork(pblock, *pwalletMain, *pMiningKey, true);
-        }
-        else{
-            CheckWork(pblock, *pwalletMain, *pMiningKey, true);
-        }
-    }
-    return false;
-}
-
-
 Value getwork(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -462,6 +382,9 @@ Value getwork(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Bithold is downloading blocks...");
 
+    if (pindexBest->nHeight >= Params().LastPOWBlock())
+        throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");	
+	
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
     static vector<CBlock*> vNewBlock;
@@ -611,6 +534,9 @@ Value getblocktemplate(const Array& params, bool fHelp)
     //if (IsInitialBlockDownload())
     //    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Bithold is downloading blocks...");
 
+    if (pindexBest->nHeight >= Params().LastPOWBlock())
+        throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+
     // Update block
     static unsigned int nTransactionsUpdatedLast;
     static CBlockIndex* pindexPrev;
@@ -716,34 +642,6 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("curtime", (int64_t)pblock->nTime));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
-
-    CScript payee;
-    CTxIn vin;
-    if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee, vin)){
-        CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
-        if(winningNode){
-            payee = GetScriptForDestination(winningNode->pubkey.GetID());
-        }
-    }
-
-    if(payee != CScript()){
-        CTxDestination address1;
-        ExtractDestination(payee, address1);
-        CBitholdcoinAddress address2(address1);
-        result.push_back(Pair("payee", address2.ToString().c_str()));
-        result.push_back(Pair("payee_amount", (int64_t)GetMasternodePayment(pindexPrev->nHeight+1, pblock->vtx[0].GetValueOut())));
-    }
-    else {
-        result.push_back(Pair("payee", ""));
-        result.push_back(Pair("payee_amount", ""));
-    }
-
-    bool MasternodePayments = false;
-    if(pblock->nTime > START_MASTERNODE_PAYMENTS)
-        MasternodePayments = true;
-
-    result.push_back(Pair("masternode_payments", MasternodePayments));
-    result.push_back(Pair("enforce_masternode_payments", true));
 
     return result;
 }

@@ -1360,7 +1360,6 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
     // Base reward.
 
     int64_t nSubsidy = 0 * COIN;
-	int exp = nHeight / 150000; // Halving every 150k
 
     if (nHeight == 1) {
         nSubsidy = 499000 * COIN; // premine
@@ -1380,22 +1379,37 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
     else if (nHeight > 400 && nHeight <= 500) {
         nSubsidy = 25 * COIN; // instamine prevention
     }   	
-    else if (nHeight > 500 && nHeight <= 50000) {
+    else if (nHeight > 500 && nHeight <= 4800) {
         nSubsidy = 50 * COIN; // initial block reward
     }
+    else if (nHeight > 4800 && nHeight <= 50000) {
+        nSubsidy = 37 * COIN; // initial block reward
+    }
     else if (nHeight > 50000 && nHeight <= 100000) {
-        nSubsidy = 40 * COIN; // initial block reward
+        nSubsidy = 25 * COIN; // initial block reward
     }
     else if (nHeight > 100000 && nHeight <= 200000) {
-        nSubsidy = 30 * COIN; // initial block reward
+        nSubsidy = 15 * COIN; // initial block reward
     }
     else if (nHeight > 200000 && nHeight <= 300000) {
-        nSubsidy = 20 * COIN; // initial block reward
+        nSubsidy = 8 * COIN; // initial block reward
     }
-    else if (nHeight > 300000) {
-        nSubsidy = (exp <= 20) ? ((exp >= 1) ? nSubsidy / (2 << (exp - 1)) : nSubsidy) : 0;  // coin overflow after 20 halvings (2^30)
+    else if (nHeight > 300000 && nHeight <= 450000) {
+        nSubsidy = 5 * COIN; // initial block reward
     }
-
+    else if (nHeight > 450000 && nHeight <= 600000) {
+        nSubsidy = 3 * COIN; // initial block reward
+    }
+    else if (nHeight > 600000 && nHeight <= 900000) {
+        nSubsidy = 3 / 2 * COIN; // initial block reward
+    }
+    else if (nHeight > 900000 && nHeight <= 1500000) {
+        nSubsidy = 1 * COIN; // initial block reward
+    }
+    else if (nHeight > 1500000) {
+        nSubsidy = 0 * COIN; // initial block reward
+    }
+	
     // add fees.
     return nSubsidy + nFees;
 }
@@ -1403,8 +1417,30 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
-    // Accounting for leap years.
-    int64_t nSubsidy = (nCoinAge * STATIC_POS_REWARD) / ((365 * 33 + 8) / 33); // 10% per annum.
+    int64_t nSubsidy = 0;
+
+    if (pindexBest->nHeight+1 > 0 && pindexBest->nHeight+1 <= 4801) {
+        nSubsidy = (nCoinAge * STATIC_POS_REWARD) / ((365 * 33 + 8) / 33); // 10% per annum.
+    }
+    else if (pindexBest->nHeight+1 > 4801 && pindexBest->nHeight+1 <= 50000)  {
+        nSubsidy = 15 * COIN; 
+    }
+    else if (pindexBest->nHeight+1 > 50000 && pindexBest->nHeight+1 <= 100000)  {
+        nSubsidy = 25 * COIN; 
+    }
+    else if (pindexBest->nHeight+1 > 100000 && pindexBest->nHeight+1 <= 200000) {
+        nSubsidy = 20 * COIN;
+    }
+    else if (pindexBest->nHeight+1 > 200000 && pindexBest->nHeight+1 <= 300000) {
+        nSubsidy = 15 * COIN;
+    }
+    else if (pindexBest->nHeight+1 > 300000 && pindexBest->nHeight+1 <= 450000) {
+        nSubsidy = 10 * COIN;
+    }
+    else if (pindexBest->nHeight+1 > 450000) {
+        nSubsidy = 5 * COIN;
+    }
+        
     return nSubsidy + nFees;
 }
 
@@ -4563,12 +4599,10 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 
     if (nHeight < 1000) {
 	ret = 0;
-    } else if (nHeight >= 1000 && nHeight <= 10000) {
+    } else if (nHeight >= 1000 && nHeight <= 4800) {
         ret = blockValue / 4; // MN Reward 25%
-    } else if (nHeight > 10000 && nHeight <= 30000) {
-		ret = blockValue / 2; // MN Reward 50%
-    } else if (nHeight > 30000) {
-		ret = blockValue * 3 / 4; // MN Reward 75%
+    } else if (nHeight > 4800) {
+		ret = blockValue * 4 / 5; // MN Reward 80%
 	}
     return ret;
 }

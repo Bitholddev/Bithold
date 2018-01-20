@@ -52,6 +52,22 @@ static void convertSeeds(std::vector<CAddress> &vSeedsOut, const unsigned int *d
     }
 }
 
+// Hardcoded seeds.
+static void getHardcodedSeeds(std::vector<CAddress> &vSeedsOut)
+{
+    std::vector<std::string> ips;
+    ips.push_back("54.37.233.83");
+    ips.push_back("137.74.40.196");
+
+    const int64_t oneWeek = 7 * 24 * 60 * 60;
+    for (size_t i = 0; i < ips.size(); ++i)
+    {
+        CAddress addr(CService(ips[i], 15971));
+        addr.nTime = GetTime() - GetRand(oneWeek) - oneWeek;
+        vSeedsOut.push_back(addr);
+    }
+}
+
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
@@ -99,20 +115,18 @@ public:
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,23);
         base58Prefixes[STEALTH_ADDRESS] = std::vector<unsigned char>(1,41);
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x99)(0x75)(0x45)(0xE2).convert_to_container<std::vector<unsigned char> >();
-        base58Prefixes[EXT_SECRET_KEY] = list_of(0x99)(0x73)(0x43)(0xE3).convert_to_container<std::vector<unsigned char> >();
-
-        convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);    
-
-//        vFixedSeeds.clear();
-//        vSeeds.clear();
-		
+        base58Prefixes[EXT_SECRET_KEY] = list_of(0x99)(0x73)(0x43)(0xE3).convert_to_container<std::vector<unsigned char> >();  
+	
         vSeeds.push_back(CDNSSeedData("1",  "54.37.233.83"));
         vSeeds.push_back(CDNSSeedData("2",  "137.74.40.196"));
+		convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort); 
+		
+        getHardcodedSeeds(vFixedSeeds);		
 
         nPoolMaxTransactions = 3;
-        strDarksendPoolDummyAddress = "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh";
+        strDarksendPoolDummyAddress = "hFoQDUrp63QWqFhjEr3Fmc4ubHRhyzjKUC";
 
-        nLastPOWBlock = 3450000;
+        nLastPOWBlock = 1500000;
         nPOSStartBlock = 500;
     }
 

@@ -22,34 +22,38 @@ Welcome to the future!
 *	Blocktime:	90 sec
 *	Maturity: 	90 blocks
 *	Diff retargeting: 	every block
-*	Total supply: 	40 000 000 after 10+ years
-*	PoW Rewards: see below
-*	Masternode Rewards: see below
-*	PoS Rewards: 10%
+*	Total supply: 	~38 000 000 after 10+ years
+*	Masternode Rewards: 80% of POS Rewards since block 4800
+*	PoS coins maturation: 24 hour
 
 
-## PoW Rewards:
+#### PoW Rewards:
 
-*	block 2 - 100 : 		  1
-*	block 101 - 200 : 		  5
-*	block 201 - 300 : 		  10
-*	block 301 - 400 : 		  15
-*	block 401 - 500 : 		  25
-*	block 501 - 50 000 : 	  50
-*	block 50 001 - 100 000 :  40
-*	block 100 001 - 200 000 : 30
-*	block 200 001 - 300 000 : 20
-*	then halving every 150K blocks
+*	since start : 1
+*	since block 101 : 5
+*	since block 201 : 10
+*	since block 301 : 15
+*	since block 401 : 25
+*	since block 501 : 50
+*	since block 4800 : 37
+*	since block 50 001 : 25
+*	since block 100 001 : 15
+*	since block 200 001 : 8
+*	since block 300 001 : 5
+*	since block 450 001 : 3
+*	since block 600 001 : 1.5
+*	since block 900 001 : 1
+*	Last PoW Block : 1 500 000
 
 
-### Masternode Rewards:
+##### PoS Rewards:
 
 *	block 1 000 - 10 000 : 	25% of the POW rewards
 *	block 10 001 - 30 000 : 50% of the POW rewards
 *	block 30 000 + : 		75% of the POW rewards
 
 
-## License
+###### License
 
 Bithold is released under the terms of the MIT license. See COPYING for more information or see http://opensource.org/licenses/MIT.
 
