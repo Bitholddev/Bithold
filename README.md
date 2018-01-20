@@ -48,10 +48,12 @@ Welcome to the future!
 
 ##### PoS Rewards:
 
-*	block 1 000 - 10 000 : 	25% of the POW rewards
-*	block 10 001 - 30 000 : 50% of the POW rewards
-*	block 30 000 + : 		75% of the POW rewards
-
+*	since block 4800 : 15
+*	since block 50 001 : 25
+*	since block 100 001 : 20
+*	since block 200 001 : 15
+*	since block 300 001 : 10
+*	since block 450 001 : 5
 
 ###### License
 
