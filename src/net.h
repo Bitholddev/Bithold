@@ -65,6 +65,7 @@ CNode* FindNode(const CSubNet& subNet);
 CNode* FindNode(std::string addrName);
 CNode* FindNode(const CService& ip);
 CNode* ConnectNode(CAddress addrConnect, const char *strDest = NULL, bool darkSendMaster=false);
+bool CheckNode(CAddress addrConnect);
 void MapPort(bool fUseUPnP);
 unsigned short GetListenPort();
 bool BindListenPort(const CService &bindAddr, std::string& strError=REF(std::string()));
@@ -94,7 +95,6 @@ enum
     LOCAL_IF,     // address a local interface listens on
     LOCAL_BIND,   // address explicit bound to
     LOCAL_UPNP,   // address reported by UPnP
-    LOCAL_IRC,    // address reported by IRC (deprecated)
     LOCAL_MANUAL, // address explicitly specified (-externalip=)
 
     LOCAL_MAX
