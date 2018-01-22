@@ -32,7 +32,7 @@ int64_t nTransactionFee = MIN_TX_FEE;
 int64_t nReserveBalance = 0;
 int64_t nMinimumInputValue = 0;
 
-static int64_t GetStakeCombineThreshold() { return 100 * COIN; }
+static int64_t GetStakeCombineThreshold() { return GetArg("-stakethreshold", 100) * COIN; }
 static int64_t GetStakeSplitThreshold() { return 2 * GetStakeCombineThreshold(); }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1748,8 +1748,8 @@ void CWallet::AvailableCoinsForStaking(vector<COutput>& vCoins, unsigned int nSp
             if (pcoin->nTime + nStakeMinAge > nSpendTime)
                continue;
             // Filtering by tx timestamp instead of block timestamp may give false positives but never false negatives
-            if (pcoin->nTime + nStakeMaxAge < nSpendTime)
-               continue;
+           // if (pcoin->nTime + nStakeMaxAge < nSpendTime)
+            //   continue;
             }
 
             if (pcoin->GetBlocksToMaturity() > 0)
@@ -2001,7 +2001,7 @@ bool CWallet::SelectCoins(int64_t nTargetValue, unsigned int nSpendTime, set<pai
         AvailableCoins(vCoins, true, coinControl, ONLY_NONDENOMINATED_NOT10000IFMN, useIX);
     }
 
-    //if we're doing only denominated, we need to round up to the nearest .1TX
+    //if we're doing only denominated, we need to round up to the nearest .1BHD
     if(coin_type == ONLY_DENOMINATED) {
         // Make outputs by looping through denominations, from large to small
         BOOST_FOREACH(int64_t v, darkSendDenominations)
@@ -2009,7 +2009,7 @@ bool CWallet::SelectCoins(int64_t nTargetValue, unsigned int nSpendTime, set<pai
             BOOST_FOREACH(const COutput& out, vCoins)
             {
                 if(out.tx->vout[out.i].nValue == v                                            //make sure it's the denom we're looking for
-                    && nValueRet + out.tx->vout[out.i].nValue < nTargetValue + (0.1*COIN)+100 //round the amount up to .1TX over
+                    && nValueRet + out.tx->vout[out.i].nValue < nTargetValue + (0.1*COIN)+100 //round the amount up to .1BHD over
                 ){
                     CTxIn vin = CTxIn(out.tx->GetHash(),out.i);
                     int rounds = GetInputDarksendRounds(vin);
@@ -2116,11 +2116,11 @@ bool CWallet::SelectCoinsByDenominations(int nDenom, int64_t nValueMin, int64_t 
 
             // Function returns as follows:
             //
-            // bit 0 - 1000TX+1 ( bit on if present )
-            // bit 1 - 100TX+1
-            // bit 2 - 10TX+1
-            // bit 3 - 1TX+1
-            // bit 4 - .1TX+1
+            // bit 0 - 1000BHD+1 ( bit on if present )
+            // bit 1 - 100BHD+1
+            // bit 2 - 10BHD+1
+            // bit 3 - 1BHD+1
+            // bit 4 - .1BHD+1
 
             CTxIn vin = CTxIn(out.tx->GetHash(),out.i);
 
@@ -3479,7 +3479,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             int64_t nTimeWeight = GetWeight((int64_t)pcoin.first->nTime, (int64_t)txNew.nTime);
 
             // Stop adding more inputs if already too many inputs
-            if (txNew.vin.size() >= 100)
+            if (txNew.vin.size() >= 10)
                 break;
             // Stop adding more inputs if value is already pretty significant
             if (nCredit >= GetStakeCombineThreshold())
@@ -3494,8 +3494,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (nTimeWeight < nStakeMinAge)
                 continue;
             // Do not add input that is too old
-            if (nTimeWeight > nStakeMaxAge)
-                continue;
+           // if (nTimeWeight > nStakeMaxAge)
+           //     continue;
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->vout[pcoin.second].nValue;
@@ -3979,9 +3979,9 @@ bool CWallet::NewKeyPool()
         int64_t nKeys;
 
         if (fLiteMode)
-            nKeys = max(GetArg("-keypool", 100), (int64_t)0);
+            nKeys = max(GetArg("-keypool", 10), (int64_t)0);
         else
-            nKeys = max(GetArg("-keypool", 1000), (int64_t)0);
+            nKeys = max(GetArg("-keypool", 100), (int64_t)0);
 
         for (int i = 0; i < nKeys; i++)
         {
@@ -4011,9 +4011,9 @@ bool CWallet::TopUpKeyPool(unsigned int nSize)
         if (nSize > 0)
             nTargetSize = nSize;
         else if (fLiteMode)
-            nTargetSize = max(GetArg("-keypool", 100), (int64_t)0);
+            nTargetSize = max(GetArg("-keypool", 10), (int64_t)0);
         else
-            nTargetSize = max(GetArg("-keypool", 1000), (int64_t)0);
+            nTargetSize = max(GetArg("-keypool", 100), (int64_t)0);
 
         while (setKeyPool.size() < (nTargetSize + 1))
         {

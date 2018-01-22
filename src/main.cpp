@@ -2055,8 +2055,10 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     }
 
     // ppcoin: track money supply and mint amount info
+#ifndef LOWMEM
     pindex->nMint = nValueOut - nValueIn + nFees;
     pindex->nMoneySupply = (pindex->pprev? pindex->pprev->nMoneySupply : 0) + nValueOut - nValueIn;
+#endif
     if (!txdb.WriteBlockIndex(CDiskBlockIndex(pindex)))
         return error("Connect() : WriteBlockIndex for pindex failed");
 
@@ -3218,14 +3220,20 @@ void PrintBlockTree()
         // print item
         CBlock block;
         block.ReadFromDisk(pindex);
+#ifndef LOWMEM
         LogPrintf("%d (%u,%u) %s  %08x  %s  mint %7s  tx %u",
+#else
+        LogPrintf("%d (%u,%u) %s  %08x  %s  tx %u",
+#endif  
             pindex->nHeight,
             pindex->nFile,
             pindex->nBlockPos,
             block.GetHash().ToString(),
             block.nBits,
             DateTimeStrFormat("%x %H:%M:%S", block.GetBlockTime()),
+#ifndef LOWMEM
             FormatMoney(pindex->nMint),
+#endif 
             block.vtx.size());
 
         // put the main time-chain first
