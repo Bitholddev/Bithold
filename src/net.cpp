@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
-// Distributed under the MIT/X11 software license, see the accompanying
+// Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include "db.h"
 #include "net.h"
@@ -56,7 +56,7 @@ uint64_t nLocalHostNonce = 0;
 static std::vector<SOCKET> vhListenSocket;
 CAddrMan addrman;
 std::string strSubVersion;
-int nMaxConnections = 125;
+int nMaxConnections = GetArg("-maxconnections", 125);
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
@@ -310,38 +310,10 @@ bool IsReachable(const CNetAddr& addr)
     return vfReachable[net] && !vfLimited[net];
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void AddressCurrentlyConnected(const CService& addr)
 {
     addrman.Connected(addr);
 }
-
-
 
 
 uint64_t CNode::nTotalBytesRecv = 0;
@@ -384,6 +356,41 @@ CNode* FindNode(const CService& addr)
             return (pnode);
     return NULL;
 }
+
+bool CheckNode(CAddress addrConnect)
+{
+    // Look for an existing connection. If found then just add it to masternode list.
+    CNode* pnode = FindNode((CService)addrConnect);
+    if (pnode)
+        return true;
+
+    // Connect
+    SOCKET hSocket;
+    bool proxyConnectionFailed = false;
+    if (ConnectSocket(addrConnect, hSocket))
+    {
+        LogPrint("net", "connected masternode %s\n", addrConnect.ToString());
+        closesocket(hSocket);
+        
+/*        // Set to non-blocking
+#ifdef WIN32
+        u_long nOne = 1;
+        if (ioctlsocket(hSocket, FIONBIO, &nOne) == SOCKET_ERROR)
+            LogPrintf("ConnectSocket() : ioctlsocket non-blocking setting failed, error %d\n", WSAGetLastError());
+#else
+        if (fcntl(hSocket, F_SETFL, O_NONBLOCK) == SOCKET_ERROR)
+            LogPrintf("ConnectSocket() : fcntl non-blocking setting failed, error %d\n", errno);
+#endif
+        CNode* pnode = new CNode(hSocket, addrConnect, "", false);
+        // Close connection
+        pnode->CloseSocketDisconnect();
+*/        
+        return true;
+    }
+    LogPrint("net", "connecting to masternode %s failed\n", addrConnect.ToString());
+    return false;
+}
+
 
 CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool darkSendMaster)
 {
@@ -464,8 +471,6 @@ void CNode::CloseSocketDisconnect()
     if (this == pnodeSync)
         pnodeSync = NULL;
 }
-
-
 
 void CNode::PushVersion()
 {
@@ -630,7 +635,7 @@ void CNode::copyStats(CNodeStats &stats)
     stats.fSyncNode = (this == pnodeSync);
 
     // It is common for nodes with good ping times to suddenly become lagged,
-    // due to a new block arriving or other large Bithold.
+    // due to a new block arriving or other large transfer.
     // Merely reporting pingtime might fool the caller into thinking the node was still responsive,
     // since pingtime does not update until the ping is complete, which might take a while.
     // So, if a ping is taking an unusually long time in flight,
@@ -1228,7 +1233,7 @@ void ThreadDNSAddressSeed()
 {
     // goal: only query DNS seeds if address need is acute
     if ((addrman.size() > 0) &&
-        (!GetBoolArg("-forcednsseed", false))) {
+        (!GetBoolArg("-forcednsseed", true))) {
         MilliSleep(11 * 1000);
 
         LOCK(cs_vNodes);
@@ -1266,9 +1271,6 @@ void ThreadDNSAddressSeed()
 
     LogPrintf("%d addresses found from DNS seeds\n", found);
 }
-
-
-
 
 
 
@@ -1385,7 +1387,7 @@ void ThreadOpenConnections()
         while (true)
         {
             // use an nUnkBias between 10 (no outgoing connections) and 90 (8 outgoing connections)
-            CAddress addr = addrman.Select(10 + min(nOutbound,8)*10);
+            CAddress addr = addrman.Select();
 
             // if we selected an invalid address, restart
             if (!addr.IsValid() || setConnected.count(addr.GetGroup()) || IsLocal(addr))
@@ -1406,8 +1408,8 @@ void ThreadOpenConnections()
                 continue;
 
             // do not allow non-default ports, unless after 50 invalid addresses selected already
-            if (addr.GetPort() != Params().GetDefaultPort() && nTries < 50)
-                continue;
+            /*if (addr.GetPort() != Params().GetDefaultPort() && nTries < 50)
+                continue;*/
 
             addrConnect = addr;
             break;
@@ -1832,7 +1834,7 @@ void StartNode(boost::thread_group& threadGroup)
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", USE_UPNP));
 #endif
-
+    
     // Send and receive from sockets, accept connections
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
 
@@ -1899,12 +1901,6 @@ public:
     }
 }
 instance_of_cnetcleanup;
-
-
-
-
-
-
 
 void RelayTransaction(const CTransaction& tx, const uint256& hash)
 {
@@ -2030,8 +2026,8 @@ bool CAddrDB::Read(CAddrMan& addr)
         return error("CAddrman::Read() : open failed");
 
     // use file size to size memory buffer
-    uint64_t fileSize = boost::filesystem::file_size(pathAddr);
-    uint64_t dataSize = fileSize - sizeof(uint256);
+    int64_t fileSize = boost::filesystem::file_size(pathAddr);
+    int64_t dataSize = fileSize - sizeof(uint256);
     // Don't try to resize to a negative number if file is small
     if (fileSize >= sizeof(uint256))
         dataSize = fileSize - sizeof(uint256);
