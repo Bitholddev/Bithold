@@ -58,7 +58,9 @@ static void getHardcodedSeeds(std::vector<CAddress> &vSeedsOut)
     std::vector<std::string> ips;
     ips.push_back("54.37.233.83");
     ips.push_back("137.74.40.196");
-
+    ips.push_back("144.217.4.129");
+    ips.push_back("185.241.53.228");
+	
     const int64_t oneWeek = 7 * 24 * 60 * 60;
     for (size_t i = 0; i < ips.size(); ++i)
     {
@@ -119,6 +121,9 @@ public:
 	
         vSeeds.push_back(CDNSSeedData("1",  "54.37.233.83"));
         vSeeds.push_back(CDNSSeedData("2",  "137.74.40.196"));
+        vSeeds.push_back(CDNSSeedData("3",  "144.217.4.129"));
+        vSeeds.push_back(CDNSSeedData("4",  "185.241.53.228"));
+		
 		convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort); 
 		
         getHardcodedSeeds(vFixedSeeds);		

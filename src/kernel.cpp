@@ -286,7 +286,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, unsigned 
 bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned int nBits, uint256& hashProofOfStake, uint256& targetProofOfStake)
 {
 
-    int nStakeMinConfirmations = 0;
+//    int nStakeMinConfirmations = 0;
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
 
@@ -309,15 +309,6 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, const CTransaction& tx, unsigned
     if (!block.ReadFromDisk(txindex.pos.nFile, txindex.pos.nBlockPos, false))
         return fDebug? error("CheckProofOfStake() : read block failed") : false; // unable to read block of previous transaction
 
-    int nDepth;
-    if(!NO_FORK && pindexBest->nHeight >= HARD_FORK_BLOCK){
-        nStakeMinConfirmations = 720;
-        if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nStakeMinConfirmations - 1, nDepth))
-            return tx.DoS(100, error("CheckProofOfStake() : tried to stake at depth %d", nDepth + 1));
-    } else {
-        nStakeMinConfirmations = 1000;
-    }
-    
     if (!CheckStakeKernelHash(pindexPrev, nBits, block.GetBlockTime(), txPrev, txin.prevout, tx.nTime, hashProofOfStake, targetProofOfStake, fDebug))
         return tx.DoS(1, error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
 
@@ -345,16 +336,8 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, int64_t nTime, con
     if (!block.ReadFromDisk(txindex.pos.nFile, txindex.pos.nBlockPos, false))
         return false;
 
-    if(NO_FORK || pindexBest->nHeight < HARD_FORK_BLOCK){
-        if ((block.GetBlockTime() + nStakeMinAge > nTime) || (block.GetBlockTime() + nStakeMaxAge < nTime))
-            return false; // only count coins meeting min age requirement
-    } else {
-        int nDepth;
-
-        int nStakeMinConfirmations = 720;
-        if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nStakeMinConfirmations - 1, nDepth))
-            return false;
-    }
+    if (block.GetBlockTime() + nStakeMinAge > nTime)
+        return false; // only count coins meeting min age requirement
 
     if (pBlockTime)
         *pBlockTime = block.GetBlockTime();

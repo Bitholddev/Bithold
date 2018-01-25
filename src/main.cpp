@@ -2415,13 +2415,12 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
         if (nTime < txPrev.nTime)
             return false;  // Transaction timestamp violation
 
-        int nSpendDepth;
-
-        if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nStakeMinConfirmations - 1, nSpendDepth))
-        {
-            LogPrint("coinage", "coin age skip nSpendDepth=%d\n", nSpendDepth + 1);
-            continue; // only count coins meeting min confirmations requirement
-        }
+        // Read block header
+        CBlock block;
+        if (!block.ReadFromDisk(txindex.pos.nFile, txindex.pos.nBlockPos, false))
+            return false; // unable to read block of previous transaction
+        if (block.GetBlockTime() + nStakeMinAge > nTime)
+            continue; // only count coins meeting min age requirement
 
         int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
         bnCentSecond += CBigNum(nValueIn) * (nTime-txPrev.nTime) / CENT;
