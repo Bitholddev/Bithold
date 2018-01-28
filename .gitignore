@@ -1,2 +1,6 @@
 Thumbs.db
 src/masternode.h.bak
+*.bak
+*.db
+src/qt/res/icons/Thumbs.db
+*.db

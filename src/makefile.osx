@@ -24,9 +24,9 @@ LIBPATHS= \
  -L"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/lib" \
  -L"$(DEPSDIR)/openssl-1.0.1p/lib"
 
-USE_UPNP:=1
+USE_UPNP:=-
 USE_WALLET:=1
-USE_IPV6:=1
+
 
 LIBS= -dead_strip
 
@@ -159,10 +159,6 @@ ifdef STATIC
 else
 	LIBS += -lminiupnpc
 endif
-endif
-
-ifneq (${USE_IPV6}, -)
-	DEFS += -DUSE_IPV6=$(USE_IPV6)
 endif
 
 all: bitholdd

@@ -2,9 +2,8 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-USE_UPNP:=1
+USE_UPNP:=-
 USE_WALLET:=1
-USE_IPV6:=1
 USE_LOWMEM:=0
 
 LINK:=$(CXX)
@@ -44,10 +43,6 @@ endif
 ifneq (${USE_UPNP}, -)
 	LIBS += -l miniupnpc
 	DEFS += -DUSE_UPNP=$(USE_UPNP)
-endif
-
-ifneq (${USE_IPV6}, -)
-	DEFS += -DUSE_IPV6=$(USE_IPV6)
 endif
 
 ifeq (${USE_LOWMEM}, 1)
