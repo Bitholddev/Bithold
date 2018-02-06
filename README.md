@@ -22,7 +22,7 @@ Welcome to the future!
 *	Blocktime:	90 sec
 *	Maturity: 	90 blocks
 *	Diff retargeting: 	every block
-*	Total supply: 	~38 000 000 after 10+ years
+*	Total supply: 	~33 000 000 after 10+ years
 *	Masternode Rewards: 80% of POS Rewards since block 4800
 *	PoS coins maturation: 24 hour
 
@@ -36,13 +36,13 @@ Welcome to the future!
 *	since block 401 : 25
 *	since block 501 : 50
 *	since block 4800 : 37
-*	since block 50 001 : 25
-*	since block 100 001 : 15
-*	since block 200 001 : 8
-*	since block 300 001 : 5
-*	since block 450 001 : 3
-*	since block 600 001 : 1.5
-*	since block 900 001 : 1
+*	since block 50 001 : 15
+*	since block 100 001 : 8
+*	since block 200 001 : 5
+*	since block 300 001 : 3
+*	since block 450 001 : 1.5
+*	since block 600 001 : 1
+*	since block 900 001 : 0.5
 *	Last PoW Block : 1 500 000
 
 

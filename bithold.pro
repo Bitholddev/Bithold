@@ -563,13 +563,13 @@ isEmpty(MINIUPNPC_LIB_PATH) {
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/openssl-1.0.1p/include
-    windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
+    macx:OPENSSL_INCLUDE_PATH = /usr/local/openssl-1.0.2n/include
+    windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.2n/include
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/openssl-1.0.1p/lib
-    windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
+    macx:OPENSSL_LIB_PATH = /usr/local/openssl-1.0.2n/lib
+    windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.2n/lib
 }
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)

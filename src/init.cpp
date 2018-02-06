@@ -302,7 +302,7 @@ strUsage += "\n" + _("Masternode options:") + "\n";
     strUsage += _("Secure messaging options:") + "\n" +
         "  -nosmsg                                  " + _("Disable secure messaging.") + "\n" +
         "  -debugsmsg                               " + _("Log extra debug messages.") + "\n" +
-        "  -smsgscanchain                           " + _("Scan the block chain for public key addresses on startup.") + "\n";
+        "  -smsgscanchain                           " + _("Scan the block chain for public key addresses on startup.") + "\n" +
     strUsage += "  -stakethreshold=<n> " + _("This will set the output size of your stakes to never be below this number (default: 100)") + "\n";
 
     return strUsage;
@@ -710,6 +710,9 @@ bool AppInit2(boost::thread_group& threadGroup)
             if (!nets.count(net))
                 SetLimited(net);
         }
+    } else {
+        SetReachable(NET_IPV4);
+        SetReachable(NET_IPV6);
     }
 
     CService addrProxy;
@@ -807,32 +810,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     nStart = GetTimeMillis();
     if (!LoadBlockIndex())
         return InitError(_("Error loading block database"));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // as LoadBlockIndex can take several minutes, it's possible the user
     // requested to kill bitcoin-qt during the last operation. If so, exit.

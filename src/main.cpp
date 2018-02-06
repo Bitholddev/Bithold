@@ -690,17 +690,17 @@ int64_t GetMinFee(const CTransaction& tx, unsigned int nBytes, bool fAllowFree, 
 
     int64_t nMinFee = (1 + (int64_t)nBytes / 1000) * nBaseFee;
 
-    if (fAllowFree)
-    {
+    //if (fAllowFree)
+    //{
         // There is a free transaction area in blocks created by most miners,
         // * If we are relaying we allow transactions up to DEFAULT_BLOCK_PRIORITY_SIZE - 1000
         //   to be considered to fall into this category. We don't want to encourage sending
         //   multiple transactions instead of one big transaction to avoid fees.
         // * If we are creating a transaction we allow transactions up to 1,000 bytes
         //   to be considered safe and assume they can likely make it into this section.
-        if (nBytes < (mode == GMF_SEND ? 1000 : (DEFAULT_BLOCK_PRIORITY_SIZE - 1000)))
-            nMinFee = 0;
-    }
+    //    if (nBytes < (mode == GMF_SEND ? 1000 : (DEFAULT_BLOCK_PRIORITY_SIZE - 1000)))
+    //        nMinFee = 0;
+    //}
 
     // This code can be removed after enough miners have upgraded to version 0.9.
     // Until then, be safe when sending and require a fee if any output
@@ -1386,25 +1386,25 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
         nSubsidy = 37 * COIN; // initial block reward
     }
     else if (nHeight > 50000 && nHeight <= 100000) {
-        nSubsidy = 25 * COIN; // initial block reward
-    }
-    else if (nHeight > 100000 && nHeight <= 200000) {
         nSubsidy = 15 * COIN; // initial block reward
     }
-    else if (nHeight > 200000 && nHeight <= 300000) {
+    else if (nHeight > 100000 && nHeight <= 200000) {
         nSubsidy = 8 * COIN; // initial block reward
     }
-    else if (nHeight > 300000 && nHeight <= 450000) {
+    else if (nHeight > 200000 && nHeight <= 300000) {
         nSubsidy = 5 * COIN; // initial block reward
     }
-    else if (nHeight > 450000 && nHeight <= 600000) {
+    else if (nHeight > 300000 && nHeight <= 450000) {
         nSubsidy = 3 * COIN; // initial block reward
     }
-    else if (nHeight > 600000 && nHeight <= 900000) {
+    else if (nHeight > 450000 && nHeight <= 600000) {
         nSubsidy = 3 / 2 * COIN; // initial block reward
     }
-    else if (nHeight > 900000 && nHeight <= 1500000) {
+    else if (nHeight > 600000 && nHeight <= 900000) {
         nSubsidy = 1 * COIN; // initial block reward
+    }
+    else if (nHeight > 900000 && nHeight <= 1500000) {
+        nSubsidy = 1 / 2 * COIN; // initial block reward
     }
     else if (nHeight > 1500000) {
         nSubsidy = 0 * COIN; // initial block reward
@@ -1477,8 +1477,8 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
         if (nActualSpacing < 0){
             nActualSpacing = TARGET_SPACING_FORK;
         }
-        if(nActualSpacing > TARGET_SPACING_FORK * 10){
-            nActualSpacing = TARGET_SPACING_FORK * 10;
+        if(nActualSpacing > TARGET_SPACING_FORK){
+            nActualSpacing = TARGET_SPACING_FORK;
         }
     } else if(NO_FORK || pindexBest->nHeight < HARD_FORK_BLOCK) {
         if (nActualSpacing < 0){
@@ -3885,7 +3885,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         // Send the rest of the chain
         if (pindex)
             pindex = pindex->pnext;
-        int nLimit = 5000;
+        int nLimit = 500;
         LogPrint("net", "getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString(), nLimit);
         for (; pindex; pindex = pindex->pnext)
         {
