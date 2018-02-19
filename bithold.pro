@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = bithold-qt
-VERSION = 1.4.2.1
+VERSION = 1.5.1.1
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += network printsupport
 DEFINES += ENABLE_WALLET
