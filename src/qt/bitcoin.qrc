@@ -78,6 +78,7 @@
     <qresource prefix="/images">
         <file alias="about">res/images/about.png</file>
         <file alias="splash">res/images/splash3.png</file>
+        <file alias="bitholdlogo">res/images/walletlogo.png</file>
         <file alias="header">res/images/header.png</file>
     </qresource>
     <qresource prefix="/movies">
