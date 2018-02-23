@@ -1,8 +1,6 @@
 # The Bithold
 
-We introduce you a new cryptocoin called Bithold.
-Bithold is a safe, anonymous, fast and highly profitable coin with Masternodes and advanced reward system with Long-Term Development & Support.
-Welcome to the future!
+POW/POS mineable cryptocurrency with Masternodes, based on a secure C11 algorithm.
 
 ## Main futures:
 
